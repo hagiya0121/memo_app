@@ -8,5 +8,10 @@
 <body>
   <h1>メモアプリ</h1>
   <a href="/new">追加</a>
+  <ul>
+    <% @memos.each do |memo| %>
+    <li><%= memo[0] %></li>
+    <% end %>
+  </ul>
 </body>
 </html>
