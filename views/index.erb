@@ -8,10 +8,12 @@
 <body>
   <h1>メモアプリ</h1>
   <a href="/new">追加</a>
+  <% unless @memos[0].nil? %>
   <ul>
     <% @memos.each do |memo| %>
-    <li><%= memo[0] %></li>
+    <li><a href=<%= "/memos/#{memo[0]}" %>><%= memo[1] %></a></li>
     <% end %>
   </ul>
+  <% end %>
 </body>
 </html>
