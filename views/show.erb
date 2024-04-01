@@ -9,6 +9,12 @@
   <h1>詳細</h1>
   <h2><%= @memo[1] %></h2>
   <p><%= @memo[2] %></p>
-  <a href=<%= "/memos/#{@memo[0]}/edit" %>>変更</a>
+  <form action="<%= "/memos/#{@memo[0]}/edit" %>" method="get">
+    <button>変更</button>
+  </form>
+  <form action="<%= "/memos/#{@memo[0]}" %>" method="post">
+    <input type="hidden" name="_method" value="delete">
+    <button>削除</button>
+  </form>
 </body>
 </html>

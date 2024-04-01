@@ -39,5 +39,14 @@ patch '/memos/:id' do
   CSV.open('./memo_app.csv', 'w') do |csv|
     new_memos.each { |row| csv << row }
   end
-  redirect "/"
+  redirect '/'
+end
+
+delete '/memos/:id' do
+  memos = CSV.read('./memo_app.csv')
+  memos.delete_if { |m| m[0] == params[:id] }
+  CSV.open('./memo_app.csv', 'w') do |csv|
+    memos.each { |row| csv << row }
+  end
+  redirect '/'
 end
