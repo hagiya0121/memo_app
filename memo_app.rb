@@ -1,14 +1,27 @@
 require 'sinatra'
-require 'debug'
 require 'csv'
 require 'securerandom'
 
+before do
+  skip_paths = ['/memos/new', '/memos']
+  @memos = CSV.read('./memo_app.csv') unless skip_paths.include?(request.path_info)
+end
+
+def find_memo
+  @memos.find { |m| m[0] == params[:id] }
+end
+
+def write_memos(memos)
+  CSV.open('./memo_app.csv', 'w') do |csv|
+    memos.each { |row| csv << row }
+  end
+end
+
 get '/' do
-  @memos =  CSV.read('./memo_app.csv')
   erb :index
 end
 
-get '/new' do
+get '/memos/new' do
   erb :new
 end
 
@@ -21,32 +34,24 @@ post '/memos' do
 end
 
 get '/memos/:id' do
-  memos = CSV.read('./memo_app.csv')
-  @memo = memos.find { |m| m[0] == params[:id] }
+  @memo = find_memo
   erb :show
 end
 
 get '/memos/:id/edit' do
-  memos = CSV.read('./memo_app.csv')
-  @memo = memos.find { |m| m[0] == params[:id] }
+  @memo = find_memo
   erb :edit
 end
 
 patch '/memos/:id' do
   new_row = [params[:id], params[:title], params[:content]]
-  memos = CSV.read('./memo_app.csv')
-  new_memos = memos.map { |m| m[0] == params[:id] ? new_row : m}
-  CSV.open('./memo_app.csv', 'w') do |csv|
-    new_memos.each { |row| csv << row }
-  end
+  new_memos = @memos.map { |m| m[0] == params[:id] ? new_row : m}
+  write_memos(new_memos)
   redirect '/'
 end
 
 delete '/memos/:id' do
-  memos = CSV.read('./memo_app.csv')
-  memos.delete_if { |m| m[0] == params[:id] }
-  CSV.open('./memo_app.csv', 'w') do |csv|
-    memos.each { |row| csv << row }
-  end
+  @memos.delete_if { |m| m[0] == params[:id] }
+  write_memos(@memos)
   redirect '/'
 end
