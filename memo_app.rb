@@ -1,6 +1,7 @@
 require 'sinatra'
 require 'csv'
 require 'securerandom'
+require 'sinatra/reloader'
 
 before do
   skip_paths = ['/memos/new', '/memos']
