@@ -12,10 +12,10 @@
     <h1>詳細</h1>
     <h2><%= @memo[1] %></h2>
     <p><%= @memo[2] %></p>
-    <form action="<%= "/memos/#{@memo[0]}/edit" %>" method="get">
+    <form action="/memos/<%= @memo[0] %>/edit" method="get">
       <button type="submit">変更</button>
     </form>
-    <form action="<%= "/memos/#{@memo[0]}" %>" method="post">
+    <form action="/memos/<%= @memo[0] %>" method="post">
       <input type="hidden" name="_method" value="delete">
       <button type="submit">削除</button>
     </form>

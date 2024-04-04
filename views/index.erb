@@ -16,7 +16,7 @@
     <% unless @memos[0].nil? %>
     <ul>
       <% @memos.each do |memo| %>
-      <li><a href=<%= "/memos/#{memo[0]}" %>><%= memo[1] %></a></li>
+      <li><a href="/memos/<%= memo[0] %>"><%= memo[1] %></a></li>
       <% end %>
     </ul>
     <% end %>

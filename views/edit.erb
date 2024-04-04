@@ -10,7 +10,7 @@
 <body>
   <main>
     <h1>編集</h1>
-    <form action=<%= "/memos/#{@memo[0]}" %> method="post">
+    <form action="/memos/<%= @memo[0] %>" method="post">
       <input type="hidden" name="_method" value="patch">
       <input type="text" id="title" name="title" value="<%= @memo[1] %>">
       <textarea id="content" name="content"><%= @memo[2] %></textarea>
