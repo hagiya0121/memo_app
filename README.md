@@ -3,7 +3,7 @@
 
 ## 使用方法
 1. GitHubからアプリのリポジトリをローカルにクローンする。  
-`git clone https://github.com/hagiya0121/test.git`
+`git clone https://github.com/hagiya0121/memo_app.git`
 
 2. クローンしたディレクトリに移動して、Bundlerを使ってgemをインストールする。  
 'bundle'
