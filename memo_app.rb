@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'sinatra'
 require 'csv'
 require 'securerandom'
@@ -46,7 +48,7 @@ end
 
 patch '/memos/:id' do
   new_row = [params[:id], params[:title], params[:content]]
-  new_memos = @memos.map { |m| m[0] == params[:id] ? new_row : m}
+  new_memos = @memos.map { |m| m[0] == params[:id] ? new_row : m }
   write_memos(new_memos)
   redirect '/'
 end
