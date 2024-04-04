@@ -56,3 +56,7 @@ delete '/memos/:id' do
   write_memos(@memos)
   redirect '/'
 end
+
+not_found do
+  erb :not_found
+end
