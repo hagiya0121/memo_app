@@ -6,10 +6,10 @@
 `git clone https://github.com/hagiya0121/memo_app.git`
 
 2. クローンしたディレクトリに移動して、Bundlerを使ってgemをインストールする。  
-'bundle'
+`bundle`
 
 3. サーバーを起動する。  
-'bundle exec ruby memo_app.rb'
+`bundle exec ruby memo_app.rb`
 
 4. ブラウザから以下のURLにアクセスする。  
-'http://localhost:4567/'
+`http://localhost:4567/`
