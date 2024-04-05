@@ -3,7 +3,7 @@
 source 'https://rubygems.org'
 
 gem 'csv'
-gem 'rack'
+gem 'rackup'
 gem 'sinatra'
 group :development do
   gem 'erb_lint', require: false
