@@ -5,12 +5,12 @@ require 'csv'
 require 'securerandom'
 require 'sinatra/reloader'
 
-before do
-  skip_paths = ['/memos/new', '/memos']
-  @memos = CSV.read('./memo_app.csv') unless skip_paths.include?(request.path_info)
+def load_memos
+  @memos = CSV.read('./memo_app.csv')
 end
 
 def find_memo
+  load_memos
   @memos.find { |m| m[0] == params[:id] }
 end
 
@@ -21,6 +21,7 @@ def write_memos(memos)
 end
 
 get '/' do
+  load_memos
   erb :index
 end
 
@@ -47,6 +48,7 @@ get '/memos/:id/edit' do
 end
 
 patch '/memos/:id' do
+  load_memos
   new_row = [params[:id], params[:title], params[:content]]
   new_memos = @memos.map { |m| m[0] == params[:id] ? new_row : m }
   write_memos(new_memos)
@@ -54,6 +56,7 @@ patch '/memos/:id' do
 end
 
 delete '/memos/:id' do
+  load_memos
   @memos.delete_if { |m| m[0] == params[:id] }
   write_memos(@memos)
   redirect '/'
