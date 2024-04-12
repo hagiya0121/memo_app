@@ -31,8 +31,8 @@ end
 
 post '/memos' do
   CSV.open('./memo_app.csv', 'a') do |csv|
-    id = SecureRandom.hex(4)
-    csv << [id, params[:title], params[:content]]
+    uuid = SecureRandom.uuid
+    csv << [uuid, params[:title], params[:content]]
   end
   redirect '/'
 end
