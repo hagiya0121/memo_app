@@ -4,8 +4,9 @@ require 'sinatra'
 require 'csv'
 require 'securerandom'
 require 'sinatra/reloader'
+include ERB::Util
 
-CSV_HEADERS = %w[id title content]
+CSV_HEADERS = %w[id title content].freeze
 
 def load_memos
   @memos = CSV.read('./memo_app.csv', headers: true, header_converters: :symbol).map(&:to_h)
