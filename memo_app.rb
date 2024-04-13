@@ -5,18 +5,21 @@ require 'csv'
 require 'securerandom'
 require 'sinatra/reloader'
 
+CSV_HEADERS = %w[id title content]
+
 def load_memos
-  @memos = CSV.read('./memo_app.csv')
+  @memos = CSV.read('./memo_app.csv', headers: true, header_converters: :symbol).map(&:to_h)
 end
 
 def find_memo
   load_memos
-  @memos.find { |m| m[0] == params[:id] }
+  @memos.find { |m| m[:id] == params[:id] }
 end
 
 def write_memos(memos)
   CSV.open('./memo_app.csv', 'w') do |csv|
-    memos.each { |row| csv << row }
+    csv << CSV_HEADERS
+    memos.each { |memo| csv << memo }
   end
 end
 
@@ -50,15 +53,15 @@ end
 patch '/memos/:id' do
   load_memos
   new_row = [params[:id], params[:title], params[:content]]
-  new_memos = @memos.map { |m| m[0] == params[:id] ? new_row : m }
+  new_memos = @memos.map { |m| m[:id] == params[:id] ? new_row : m.values }
   write_memos(new_memos)
   redirect '/'
 end
 
 delete '/memos/:id' do
   load_memos
-  @memos.delete_if { |m| m[0] == params[:id] }
-  write_memos(@memos)
+  memos = @memos.delete_if { |m| m[:id] == params[:id] }.map(&:values)
+  write_memos(memos)
   redirect '/'
 end
 

@@ -13,10 +13,10 @@
     <form action="/memos/new" method="get">
       <button type="submit">追加</button>
     </form>
-    <% unless @memos[0].nil? %>
+    <% unless @memos.nil? %>
     <ul>
       <% @memos.each do |memo| %>
-      <li><a href="/memos/<%= memo[0] %>"><%= memo[1] %></a></li>
+      <li><a href="/memos/<%= memo[:id] %>"><%= memo[:title] %></a></li>
       <% end %>
     </ul>
     <% end %>
