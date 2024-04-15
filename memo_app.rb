@@ -14,12 +14,11 @@ helpers do
 end
 
 def load_memos
-  @memos = CSV.read('./memo_app.csv', headers: true, header_converters: :symbol).map(&:to_h)
+  CSV.read('./memo_app.csv', headers: true, header_converters: :symbol).map(&:to_h)
 end
 
 def find_memo
-  load_memos
-  @memos.find { |m| m[:id] == params[:id] }
+  load_memos.find { |m| m[:id] == params[:id] }
 end
 
 def write_memos(memos)
@@ -30,7 +29,7 @@ def write_memos(memos)
 end
 
 get '/' do
-  load_memos
+  @memos = load_memos
   erb :index
 end
 
@@ -57,16 +56,14 @@ get '/memos/:id/edit' do
 end
 
 patch '/memos/:id' do
-  load_memos
   new_row = [params[:id], params[:title], params[:content]]
-  new_memos = @memos.map { |m| m[:id] == params[:id] ? new_row : m.values }
+  new_memos = load_memos.map { |m| m[:id] == params[:id] ? new_row : m.values }
   write_memos(new_memos)
   redirect '/'
 end
 
 delete '/memos/:id' do
-  load_memos
-  memos = @memos.delete_if { |m| m[:id] == params[:id] }.map(&:values)
+  memos = load_memos.reject { |m| m[:id] == params[:id] }.map(&:values)
   write_memos(memos)
   redirect '/'
 end
