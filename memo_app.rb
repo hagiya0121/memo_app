@@ -29,6 +29,10 @@ def write_memos(memos)
 end
 
 get '/' do
+  redirect '/memos'
+end
+
+get '/memos' do
   @memos = load_memos
   erb :index
 end
