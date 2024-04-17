@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="/css/memo_app.css">
+  <link rel="stylesheet" href="/css/normalize.css">
+  <title>Top</title>
+</head>
+<body>
+  <main>
+    <h1>メモアプリ</h1>
+    <form action="/memos/new" method="get">
+      <button type="submit">追加</button>
+    </form>
+    <% unless @memos.nil? %>
+    <ul>
+      <% @memos.each do |memo| %>
+      <li><a href="/memos/<%= memo[:id] %>"><%= h(memo[:title]) %></a></li>
+      <% end %>
+    </ul>
+    <% end %>
+  </main>
+</body>
+</html>
