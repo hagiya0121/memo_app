@@ -2,7 +2,7 @@
 
 source 'https://rubygems.org'
 
-gem 'csv'
+gem 'pg'
 gem 'rackup'
 gem 'sinatra'
 group :development do

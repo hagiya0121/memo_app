@@ -1,11 +1,8 @@
 # frozen_string_literal: true
 
 require 'sinatra'
-require 'csv'
-require 'securerandom'
+require 'pg'
 require 'sinatra/reloader'
-
-CSV_HEADERS = %w[id title content].freeze
 
 helpers do
   def h(text)
@@ -13,18 +10,33 @@ helpers do
   end
 end
 
-def load_memos
-  CSV.read('./memo_app.csv', headers: true, header_converters: :symbol).map(&:to_h)
+def read_memos
+  PG.connect(dbname: 'memo_app') do |conn|
+    conn.exec('SELECT * FROM memos ORDER BY id').to_a.map { |h| h.transform_keys(&:to_sym) }
+  end
+end
+
+def create_memo
+  PG.connect(dbname: 'memo_app') do |conn|
+    conn.exec('INSERT INTO memos (title, content) VALUES ($1, $2)', [params[:title], params[:content]])
+  end
 end
 
 def find_memo
-  load_memos.find { |m| m[:id] == params[:id] }
+  PG.connect(dbname: 'memo_app') do |conn|
+    conn.exec("SELECT * FROM memos WHERE id = #{params[:id]}").to_a.map { |h| h.transform_keys(&:to_sym) }
+  end
 end
 
-def write_memos(memos)
-  CSV.open('./memo_app.csv', 'w') do |csv|
-    csv << CSV_HEADERS
-    memos.each { |memo| csv << memo }
+def update_memo
+  PG.connect(dbname: 'memo_app') do |conn|
+    conn.exec("UPDATE memos SET title = $1, content = $2 where id = #{params[:id]}", [params[:title], params[:content]])
+  end
+end
+
+def delete_memo
+  PG.connect(dbname: 'memo_app') do |conn|
+    conn.exec("DELETE FROM memos WHERE id = #{params[:id]}")
   end
 end
 
@@ -33,7 +45,7 @@ get '/' do
 end
 
 get '/memos' do
-  @memos = load_memos
+  @memos = read_memos
   erb :index
 end
 
@@ -42,33 +54,27 @@ get '/memos/new' do
 end
 
 post '/memos' do
-  CSV.open('./memo_app.csv', 'a') do |csv|
-    uuid = SecureRandom.uuid
-    csv << [uuid, params[:title], params[:content]]
-  end
+  create_memo
   redirect '/'
 end
 
 get '/memos/:id' do
-  @memo = find_memo
+  @memo = find_memo.first
   erb :show
 end
 
 get '/memos/:id/edit' do
-  @memo = find_memo
+  @memo = find_memo.first
   erb :edit
 end
 
 patch '/memos/:id' do
-  new_row = [params[:id], params[:title], params[:content]]
-  new_memos = load_memos.map { |m| m[:id] == params[:id] ? new_row : m.values }
-  write_memos(new_memos)
+  update_memo
   redirect '/'
 end
 
 delete '/memos/:id' do
-  memos = load_memos.reject { |m| m[:id] == params[:id] }.map(&:values)
-  write_memos(memos)
+  delete_memo
   redirect '/'
 end
 
