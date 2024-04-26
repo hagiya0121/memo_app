@@ -2,41 +2,46 @@
 
 require 'sinatra'
 require 'pg'
+require 'connection_pool'
 require 'sinatra/reloader'
 
-helpers do
-  def h(text)
-    Rack::Utils.escape_html(text)
-  end
+POOL = ConnectionPool.new(size: 5, timeout: 5) do
+  PG.connect(dbname: 'memo_app')
 end
 
 def read_memos
-  PG.connect(dbname: 'memo_app') do |conn|
+  POOL.with do |conn|
     conn.exec('SELECT * FROM memos ORDER BY id').to_a.map { |h| h.transform_keys(&:to_sym) }
   end
 end
 
 def create_memo
-  PG.connect(dbname: 'memo_app') do |conn|
+  POOL.with do |conn|
     conn.exec('INSERT INTO memos (title, content) VALUES ($1, $2)', [params[:title], params[:content]])
   end
 end
 
 def find_memo
-  PG.connect(dbname: 'memo_app') do |conn|
+  POOL.with do |conn|
     conn.exec("SELECT * FROM memos WHERE id = #{params[:id]}").to_a.map { |h| h.transform_keys(&:to_sym) }
   end
 end
 
 def update_memo
-  PG.connect(dbname: 'memo_app') do |conn|
+  POOL.with do |conn|
     conn.exec("UPDATE memos SET title = $1, content = $2 where id = #{params[:id]}", [params[:title], params[:content]])
   end
 end
 
 def delete_memo
-  PG.connect(dbname: 'memo_app') do |conn|
+  POOL.with do |conn|
     conn.exec("DELETE FROM memos WHERE id = #{params[:id]}")
+  end
+end
+
+helpers do
+  def h(text)
+    Rack::Utils.escape_html(text)
   end
 end
 
