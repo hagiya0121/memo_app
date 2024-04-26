@@ -9,6 +9,19 @@ POOL = ConnectionPool.new(size: 5, timeout: 5) do
   PG.connect(dbname: 'memo_app')
 end
 
+POOL.with do |conn|
+  conn.prepare('find', 'SELECT * FROM memos WHERE id = $1')
+  conn.prepare('create', 'INSERT INTO memos (title, content) VALUES ($1, $2)')
+  conn.prepare('update', 'UPDATE memos SET title = $1, content = $2 WHERE id = $3')
+  conn.prepare('delete', 'DELETE FROM memos WHERE id = $1')
+end
+
+def find_memo
+  POOL.with do |conn|
+    conn.exec_prepared('find', [params[:id]]).to_a.map { |h| h.transform_keys(&:to_sym) }
+  end
+end
+
 def read_memos
   POOL.with do |conn|
     conn.exec('SELECT * FROM memos ORDER BY id').to_a.map { |h| h.transform_keys(&:to_sym) }
@@ -17,25 +30,19 @@ end
 
 def create_memo
   POOL.with do |conn|
-    conn.exec('INSERT INTO memos (title, content) VALUES ($1, $2)', [params[:title], params[:content]])
-  end
-end
-
-def find_memo
-  POOL.with do |conn|
-    conn.exec("SELECT * FROM memos WHERE id = #{params[:id]}").to_a.map { |h| h.transform_keys(&:to_sym) }
+    conn.exec_prepared('create', [params[:title], params[:content]])
   end
 end
 
 def update_memo
   POOL.with do |conn|
-    conn.exec("UPDATE memos SET title = $1, content = $2 where id = #{params[:id]}", [params[:title], params[:content]])
+    conn.exec_prepared('update', [params[:title], params[:content], params[:id]])
   end
 end
 
 def delete_memo
   POOL.with do |conn|
-    conn.exec("DELETE FROM memos WHERE id = #{params[:id]}")
+    conn.exec_prepared('delete', [params[:id]])
   end
 end
 
