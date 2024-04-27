@@ -10,10 +10,10 @@
 <body>
   <main>
     <h1>編集</h1>
-    <form action="/memos/<%= @memo[:id] %>" method="post">
+    <form action="/memos/<%= @memo.id %>" method="post">
       <input type="hidden" name="_method" value="patch">
-      <input type="text" id="title" name="title" value="<%= h(@memo[:title]) %>">
-      <textarea id="content" name="content"><%= h(@memo[:content]) %></textarea>
+      <input type="text" id="title" name="title" value="<%= h(@memo.title) %>">
+      <textarea id="content" name="content"><%= h(@memo.content) %></textarea>
       <button type="submit">変更</button>
     </form>
   </main>

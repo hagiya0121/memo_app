@@ -1,50 +1,8 @@
 # frozen_string_literal: true
 
 require 'sinatra'
-require 'pg'
-require 'connection_pool'
 require 'sinatra/reloader'
-
-POOL = ConnectionPool.new(size: 5, timeout: 5) do
-  PG.connect(dbname: 'memo_app')
-end
-
-POOL.with do |conn|
-  conn.prepare('find', 'SELECT * FROM memos WHERE id = $1')
-  conn.prepare('create', 'INSERT INTO memos (title, content) VALUES ($1, $2)')
-  conn.prepare('update', 'UPDATE memos SET title = $1, content = $2 WHERE id = $3')
-  conn.prepare('delete', 'DELETE FROM memos WHERE id = $1')
-end
-
-def find_memo
-  POOL.with do |conn|
-    conn.exec_prepared('find', [params[:id]]).to_a.map { |h| h.transform_keys(&:to_sym) }
-  end
-end
-
-def read_memos
-  POOL.with do |conn|
-    conn.exec('SELECT * FROM memos ORDER BY id').to_a.map { |h| h.transform_keys(&:to_sym) }
-  end
-end
-
-def create_memo
-  POOL.with do |conn|
-    conn.exec_prepared('create', [params[:title], params[:content]])
-  end
-end
-
-def update_memo
-  POOL.with do |conn|
-    conn.exec_prepared('update', [params[:title], params[:content], params[:id]])
-  end
-end
-
-def delete_memo
-  POOL.with do |conn|
-    conn.exec_prepared('delete', [params[:id]])
-  end
-end
+require './memo'
 
 helpers do
   def h(text)
@@ -57,7 +15,7 @@ get '/' do
 end
 
 get '/memos' do
-  @memos = read_memos
+  @memos = Memo.read_memos
   erb :index
 end
 
@@ -66,27 +24,30 @@ get '/memos/new' do
 end
 
 post '/memos' do
-  create_memo
+  @memo = Memo.new(title: params[:title], content: params[:content])
+  @memo.create_memo
   redirect '/'
 end
 
 get '/memos/:id' do
-  @memo = find_memo.first
+  @memo = Memo.find_memo(params[:id])
   erb :show
 end
 
 get '/memos/:id/edit' do
-  @memo = find_memo.first
+  @memo = Memo.find_memo(params[:id])
   erb :edit
 end
 
 patch '/memos/:id' do
-  update_memo
+  @memo = Memo.new(id: params[:id], title: params[:title], content: params[:content])
+  @memo.update_memo
   redirect '/'
 end
 
 delete '/memos/:id' do
-  delete_memo
+  memo = Memo.find_memo(params[:id])
+  memo.delete_memo
   redirect '/'
 end
 
