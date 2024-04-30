@@ -10,12 +10,12 @@
 <body>
   <main>
     <h1>詳細</h1>
-    <h2><%= h(@memo[:title]) %></h2>
-    <p><%= h(@memo[:content]) %></p>
-    <form action="/memos/<%= @memo[:id] %>/edit" method="get">
+    <h2><%= h(@memo.title) %></h2>
+    <p><%= h(@memo.content) %></p>
+    <form action="/memos/<%= @memo.id %>/edit" method="get">
       <button type="submit">変更</button>
     </form>
-    <form action="/memos/<%= @memo[:id] %>" method="post">
+    <form action="/memos/<%= @memo.id %>" method="post">
       <input type="hidden" name="_method" value="delete">
       <button type="submit">削除</button>
     </form>

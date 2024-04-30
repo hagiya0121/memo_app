@@ -2,7 +2,8 @@
 
 source 'https://rubygems.org'
 
-gem 'csv'
+gem 'connection_pool'
+gem 'pg'
 gem 'rackup'
 gem 'sinatra'
 group :development do

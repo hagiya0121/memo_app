@@ -1,30 +1,12 @@
 # frozen_string_literal: true
 
 require 'sinatra'
-require 'csv'
-require 'securerandom'
 require 'sinatra/reloader'
-
-CSV_HEADERS = %w[id title content].freeze
+require './memo'
 
 helpers do
   def h(text)
     Rack::Utils.escape_html(text)
-  end
-end
-
-def load_memos
-  CSV.read('./memo_app.csv', headers: true, header_converters: :symbol).map(&:to_h)
-end
-
-def find_memo
-  load_memos.find { |m| m[:id] == params[:id] }
-end
-
-def write_memos(memos)
-  CSV.open('./memo_app.csv', 'w') do |csv|
-    csv << CSV_HEADERS
-    memos.each { |memo| csv << memo }
   end
 end
 
@@ -33,7 +15,7 @@ get '/' do
 end
 
 get '/memos' do
-  @memos = load_memos
+  @memos = Memo.read_memos
   erb :index
 end
 
@@ -42,33 +24,30 @@ get '/memos/new' do
 end
 
 post '/memos' do
-  CSV.open('./memo_app.csv', 'a') do |csv|
-    uuid = SecureRandom.uuid
-    csv << [uuid, params[:title], params[:content]]
-  end
+  @memo = Memo.new(title: params[:title], content: params[:content])
+  @memo.create_memo
   redirect '/'
 end
 
 get '/memos/:id' do
-  @memo = find_memo
+  @memo = Memo.find_memo(params[:id])
   erb :show
 end
 
 get '/memos/:id/edit' do
-  @memo = find_memo
+  @memo = Memo.find_memo(params[:id])
   erb :edit
 end
 
 patch '/memos/:id' do
-  new_row = [params[:id], params[:title], params[:content]]
-  new_memos = load_memos.map { |m| m[:id] == params[:id] ? new_row : m.values }
-  write_memos(new_memos)
+  @memo = Memo.new(id: params[:id], title: params[:title], content: params[:content])
+  @memo.update_memo
   redirect '/'
 end
 
 delete '/memos/:id' do
-  memos = load_memos.reject { |m| m[:id] == params[:id] }.map(&:values)
-  write_memos(memos)
+  memo = Memo.find_memo(params[:id])
+  memo.delete_memo
   redirect '/'
 end
 
